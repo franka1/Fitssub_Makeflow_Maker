@@ -11,7 +11,7 @@ public class FitssubMakeflowMaker {
 		int size = index;
 		String firstDark = images.get(0);
 		String lastDark = images.get(size - 1);
-		for(int i = 1; i < size/2; i++) {
+		for(int i = 1; i < size/2 + 1; i++) {
 			String science = images.get(i);
 			System.out.println("fitssub_output" + subIndex + ".fits: " + science + " " + firstDark);
 			System.out.println("\tfitssub -i " + science + " -r " + firstDark + " -o fitssub_output" + subIndex + ".fits\n");
@@ -20,6 +20,19 @@ public class FitssubMakeflowMaker {
 		for(int i = size/2 + 1; i < size - 1; i++) {
 			String science = images.get(i);
 			System.out.println("fitssub_output" + subIndex + ".fits: " + science + " " + lastDark);
+			System.out.println("\tfitssub -i " + science + " -r " + firstDark + " -o fitssub_output" + subIndex + ".fits\n");
+			subIndex++;
+		}
+		return subIndex;
+	}
+	public static int makePairs2(ArrayList<String> images, int index, int subIndex) {
+		//This is a modification of makePairs to deal with an input file
+		//whose last line is a Science image
+		int size = index;
+		String firstDark = images.get(0);
+		for(int i = 1; i < size; i++) {
+			String science = images.get(i);
+			System.out.println("fitssub_output" + subIndex + ".fits: " + science + " " + firstDark);
 			System.out.println("\tfitssub -i " + science + " -r " + firstDark + " -o fitssub_output" + subIndex + ".fits\n");
 			subIndex++;
 		}
@@ -82,11 +95,15 @@ public class FitssubMakeflowMaker {
 					index++;
 					//If the image we just added is a dark, we have some more processing to do.
 					if(currentImage.charAt(secondComma + 1) == 'D') {
-						subIndex = makePairs(images, index, subIndex);
+						if(index > 1) { //Check that we have at least one Science image
+							subIndex = makePairs(images, index, subIndex);
+						}
 						index = 0;
 					}
 				}
-				//Call a modified version of makePairs to deal with the case of the last entry being Science
+				subIndex = makePairs2(images, index, subIndex);
+				
+				//Done. All loops should exit now.
 			}
 		}
 	}
