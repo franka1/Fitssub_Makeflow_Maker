@@ -7,29 +7,32 @@ import java.util.Scanner;
 //import java.util.Date;
 
 public class FitssubMakeflowMaker {
-	public static void makePairs(ArrayList<String> images, int index, int subIndex) {
+	public static int makePairs(ArrayList<String> images, int index, int subIndex) {
 		int size = index;
 		String firstDark = images.get(0);
 		String lastDark = images.get(size - 1);
 		for(int i = 1; i < size/2; i++) {
 			String science = images.get(i);
-			System.out.println("out." + subIndex + ": " + science + " " + firstDark);
-			System.out.println("FITSSUB COMMAND HERE\n");
+			System.out.println("fitssub_output" + subIndex + ".fits: " + science + " " + firstDark);
+			System.out.println("\tfitssub -i " + science + " -r " + firstDark + " -o fitssub_output" + subIndex + ".fits\n");
+			subIndex++;
 		}
 		for(int i = size/2 + 1; i < size - 1; i++) {
 			String science = images.get(i);
-			System.out.println("out." + subIndex + ": " + science + " " + lastDark);
-			System.out.println("FITSSUB COMMAND HERE\n");
+			System.out.println("fitssub_output" + subIndex + ".fits: " + science + " " + lastDark);
+			System.out.println("\tfitssub -i " + science + " -r " + firstDark + " -o fitssub_output" + subIndex + ".fits\n");
+			subIndex++;
 		}
+		return subIndex;
 	}
 	public static void main(String[] args) throws FileNotFoundException {
 		//SimpleDateFormat sdf = new SimpleDateFormat("yyyy-dd-M hh:mm:ss.nnnnnn");
 		
-		/* Write Header information */
-		System.out.println("HEADER STUFF HERE");
+		/* Write Header information (if needed) */
+		//System.out.println("HEADER STUFF HERE\n");
 		
-		//TODO: Make this file a command line argument, not hardcoded
-		Scanner fileScan = new Scanner(new File("parallel_output_sorted.csv"));
+		File input = new File(args[0]);
+		Scanner fileScan = new Scanner(input);
 		
 		
 		
@@ -77,10 +80,9 @@ public class FitssubMakeflowMaker {
 					images.set(index, image);
 					
 					index++;
-					subIndex++;
 					//If the image we just added is a dark, we have some more processing to do.
 					if(currentImage.charAt(secondComma + 1) == 'D') {
-						makePairs(images, index, subIndex);
+						subIndex = makePairs(images, index, subIndex);
 						index = 0;
 					}
 				}
